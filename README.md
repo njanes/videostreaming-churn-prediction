@@ -506,7 +506,7 @@ The following python libraries were used in this project:
 ### Distributions of Numeric Features
 To visualize the distribution of each numeric feature, we plot a histogram matrix
 
-![png](churn-predict_files/churn-predict_21_0.png)
+![png](visualizations/churn-predict_21_0.png)
     
 
 ### Distributions of Categorical Features
@@ -515,20 +515,20 @@ To visualize the distribution of each numeric feature, we plot a histogram matri
 
 To visualize the distribution of each categorical feature, we plot a countplot grid
 
-![png](churn-predict_files/churn-predict_26_0.png)
+![png](visualizations/churn-predict_26_0.png)
     
 
 ### Bivariate Visualization of Categorical Variables
 To visualize the relationship between each categorical variable and churn distribution, we plot grouped bar plots depicting both the counts, and percentage of churn in each class of each categorical variable. 
 
-![png](churn-predict_files/churn-predict_30_0.png)
+![png](visualizations/churn-predict_30_0.png)
 
     
 ### Multivariate Visualization of Numeric Variables
 #### Correlations
 To visualize the interactions between numeric variables (i.e., their correlations), we perform correlation analysis and plot a correlation matrix of the 9 numeric features. 
 
-![png](churn-predict_files/churn-predict_32_0.png)
+![png](visualizations/churn-predict_32_0.png)
     
 
 ## Feature Importance
