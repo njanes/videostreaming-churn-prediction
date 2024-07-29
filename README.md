@@ -3,8 +3,6 @@
 
 ###### *This project is based on [Coursera's data science churn prediction challenge](https://www.coursera.org/projects/data-science-challenge)
 
----
-
 ## Introduction
 ### Background
 
@@ -21,9 +19,6 @@ Regardless the reason for cancelling a subscription, this video streaming compan
 
  The goal of this project is to develop a reliable machine learning model that can predict which existing subscribers will continue their subscriptions for another month, so that proper interventions can be effectively deployed to the right audience. In other words, using the patterns found in the `train.csv` data, we will predict whether the subscriptions in `test.csv` will be continued for another month, or not.
 
-----
-
-
 ## Dataset description
 The dataset used in this project is a sample of subscriptions initiated in 2021, all snapshotted at a particular date before the subscription was cancelled. The data is split 70/30 into a training set and a test set, which contain 243,787 and 104,480 entries, respectively.
 
@@ -31,32 +26,6 @@ Both `train.csv` and `test.csv` contain one row per unique subscription. For eac
 
 Both datasets have an identical set of features. Descriptions of each feature are shown below.
 
-
-```python
-import pandas as pd
-
-data_descriptions = pd.read_csv("data_descriptions.csv")
-pd.set_option("display.max_colwidth", None)
-data_descriptions
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -219,78 +188,6 @@ data_descriptions
 </table>
 </div>
 
-
-
----
-## Import Python Modules
-
-First, we import the libraries/modules that will be used in this project:
-
-- pandas
-- numpy
-- matplotlib
-- seaborn
-- Scikit-learn
-
-
-```python
-# Import required packages
-import pandas as pd
-import numpy as np
-from matplotlib import pyplot as plt
-%matplotlib inline
-import seaborn as sns
-sns.set_style('darkgrid')
-from sklearn.model_selection import train_test_split, cross_validate, cross_val_score
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_auc_score
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.dummy import DummyClassifier
-```
-
----
-## Load the Data
-
-Let's start by loading the dataset `train.csv` into a dataframe `train_df`, and `test.csv` into a dataframe `test_df`
-
-
-```python
-train_df = pd.read_csv("train.csv")
-test_df = pd.read_csv("test.csv")
-```
-
-Next, we will print the first 5 rows of each data frame
-
-
-```python
-print("Training data frame shape:", train_df.shape)
-train_df.head()
-```
-
-    Training data frame shape: (243787, 21)
-    
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -444,34 +341,6 @@ train_df.head()
 <p>5 rows × 21 columns</p>
 </div>
 
-
-
-
-```python
-print("Test data frame shape:", test_df.shape)
-test_df.head()
-```
-
-    Test data frame shape: (104480, 20)
-    
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -620,597 +489,52 @@ test_df.head()
 
 
 
-### Summary Statistics
-
-Now, we will return summary statistics for our training data set
-
-First, the count, mean, standard deviation, minimum, maximum, and 25th, 50th, and 75th percentiles of all numeric variables:
-
-
-```python
-train_df.describe()
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>AccountAge</th>
-      <th>MonthlyCharges</th>
-      <th>TotalCharges</th>
-      <th>ViewingHoursPerWeek</th>
-      <th>AverageViewingDuration</th>
-      <th>ContentDownloadsPerMonth</th>
-      <th>UserRating</th>
-      <th>SupportTicketsPerMonth</th>
-      <th>WatchlistSize</th>
-      <th>Churn</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>count</th>
-      <td>243787.000000</td>
-      <td>243787.000000</td>
-      <td>243787.000000</td>
-      <td>243787.000000</td>
-      <td>243787.000000</td>
-      <td>243787.000000</td>
-      <td>243787.000000</td>
-      <td>243787.000000</td>
-      <td>243787.000000</td>
-      <td>243787.000000</td>
-    </tr>
-    <tr>
-      <th>mean</th>
-      <td>60.083758</td>
-      <td>12.490695</td>
-      <td>750.741017</td>
-      <td>20.502179</td>
-      <td>92.264061</td>
-      <td>24.503513</td>
-      <td>3.002713</td>
-      <td>4.504186</td>
-      <td>12.018508</td>
-      <td>0.181232</td>
-    </tr>
-    <tr>
-      <th>std</th>
-      <td>34.285143</td>
-      <td>4.327615</td>
-      <td>523.073273</td>
-      <td>11.243753</td>
-      <td>50.505243</td>
-      <td>14.421174</td>
-      <td>1.155259</td>
-      <td>2.872548</td>
-      <td>7.193034</td>
-      <td>0.385211</td>
-    </tr>
-    <tr>
-      <th>min</th>
-      <td>1.000000</td>
-      <td>4.990062</td>
-      <td>4.991154</td>
-      <td>1.000065</td>
-      <td>5.000547</td>
-      <td>0.000000</td>
-      <td>1.000007</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>25%</th>
-      <td>30.000000</td>
-      <td>8.738543</td>
-      <td>329.147027</td>
-      <td>10.763953</td>
-      <td>48.382395</td>
-      <td>12.000000</td>
-      <td>2.000853</td>
-      <td>2.000000</td>
-      <td>6.000000</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>50%</th>
-      <td>60.000000</td>
-      <td>12.495555</td>
-      <td>649.878487</td>
-      <td>20.523116</td>
-      <td>92.249992</td>
-      <td>24.000000</td>
-      <td>3.002261</td>
-      <td>4.000000</td>
-      <td>12.000000</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>75%</th>
-      <td>90.000000</td>
-      <td>16.238160</td>
-      <td>1089.317362</td>
-      <td>30.219396</td>
-      <td>135.908048</td>
-      <td>37.000000</td>
-      <td>4.002157</td>
-      <td>7.000000</td>
-      <td>18.000000</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>max</th>
-      <td>119.000000</td>
-      <td>19.989957</td>
-      <td>2378.723844</td>
-      <td>39.999723</td>
-      <td>179.999275</td>
-      <td>49.000000</td>
-      <td>4.999989</td>
-      <td>9.000000</td>
-      <td>24.000000</td>
-      <td>1.000000</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-Now, the count, unique count, top class, and frequency of top class for all categorical variables:
-
-
-```python
-train_df.describe(include = 'object')
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>SubscriptionType</th>
-      <th>PaymentMethod</th>
-      <th>PaperlessBilling</th>
-      <th>ContentType</th>
-      <th>MultiDeviceAccess</th>
-      <th>DeviceRegistered</th>
-      <th>GenrePreference</th>
-      <th>Gender</th>
-      <th>ParentalControl</th>
-      <th>SubtitlesEnabled</th>
-      <th>CustomerID</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>count</th>
-      <td>243787</td>
-      <td>243787</td>
-      <td>243787</td>
-      <td>243787</td>
-      <td>243787</td>
-      <td>243787</td>
-      <td>243787</td>
-      <td>243787</td>
-      <td>243787</td>
-      <td>243787</td>
-      <td>243787</td>
-    </tr>
-    <tr>
-      <th>unique</th>
-      <td>3</td>
-      <td>4</td>
-      <td>2</td>
-      <td>3</td>
-      <td>2</td>
-      <td>4</td>
-      <td>5</td>
-      <td>2</td>
-      <td>2</td>
-      <td>2</td>
-      <td>243787</td>
-    </tr>
-    <tr>
-      <th>top</th>
-      <td>Standard</td>
-      <td>Electronic check</td>
-      <td>No</td>
-      <td>Both</td>
-      <td>No</td>
-      <td>Computer</td>
-      <td>Comedy</td>
-      <td>Female</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>CB6SXPNVZA</td>
-    </tr>
-    <tr>
-      <th>freq</th>
-      <td>81920</td>
-      <td>61313</td>
-      <td>121980</td>
-      <td>81737</td>
-      <td>122035</td>
-      <td>61147</td>
-      <td>49060</td>
-      <td>121930</td>
-      <td>122085</td>
-      <td>122180</td>
-      <td>1</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-Let's look at the column names and data type of each column in our data frame
-
-
-```python
-train_df.info()
-```
-
-    <class 'pandas.core.frame.DataFrame'>
-    RangeIndex: 243787 entries, 0 to 243786
-    Data columns (total 21 columns):
-     #   Column                    Non-Null Count   Dtype  
-    ---  ------                    --------------   -----  
-     0   AccountAge                243787 non-null  int64  
-     1   MonthlyCharges            243787 non-null  float64
-     2   TotalCharges              243787 non-null  float64
-     3   SubscriptionType          243787 non-null  object 
-     4   PaymentMethod             243787 non-null  object 
-     5   PaperlessBilling          243787 non-null  object 
-     6   ContentType               243787 non-null  object 
-     7   MultiDeviceAccess         243787 non-null  object 
-     8   DeviceRegistered          243787 non-null  object 
-     9   ViewingHoursPerWeek       243787 non-null  float64
-     10  AverageViewingDuration    243787 non-null  float64
-     11  ContentDownloadsPerMonth  243787 non-null  int64  
-     12  GenrePreference           243787 non-null  object 
-     13  UserRating                243787 non-null  float64
-     14  SupportTicketsPerMonth    243787 non-null  int64  
-     15  Gender                    243787 non-null  object 
-     16  WatchlistSize             243787 non-null  int64  
-     17  ParentalControl           243787 non-null  object 
-     18  SubtitlesEnabled          243787 non-null  object 
-     19  CustomerID                243787 non-null  object 
-     20  Churn                     243787 non-null  int64  
-    dtypes: float64(5), int64(5), object(11)
-    memory usage: 39.1+ MB
-    
-
-Lastly, let's verify there are no missing values in our data:
-
-
-```python
-train_df.isna().any()
-```
-
-
-
-
-    AccountAge                  False
-    MonthlyCharges              False
-    TotalCharges                False
-    SubscriptionType            False
-    PaymentMethod               False
-    PaperlessBilling            False
-    ContentType                 False
-    MultiDeviceAccess           False
-    DeviceRegistered            False
-    ViewingHoursPerWeek         False
-    AverageViewingDuration      False
-    ContentDownloadsPerMonth    False
-    GenrePreference             False
-    UserRating                  False
-    SupportTicketsPerMonth      False
-    Gender                      False
-    WatchlistSize               False
-    ParentalControl             False
-    SubtitlesEnabled            False
-    CustomerID                  False
-    Churn                       False
-    dtype: bool
-
-
-
 ---
+## Python Modules
+
+The following python libraries were used in this project:
+
+- pandas
+- numpy
+- matplotlib
+- seaborn
+- Scikit-learn
+
+
 ## Exploratory Data Analysis
 
 ### Distributions of Numeric Features
 To visualize the distribution of each numeric feature, we plot a histogram matrix
-#### Plotting Histogram Matrix
 
-
-```python
-# Creating numeric feature data frame and list
-numeric_features = train_df.select_dtypes(["integer", "float"])
-numeric_features_list = list(numeric_features)
-numeric_features_index = [train_df.columns.get_loc(c) for c in numeric_features_list if c in train_df]
-numeric_features_index
-# Creating histogram grid
-numeric_features.hist(figsize=(20, 12), layout=(3, 5))
-plt.suptitle("Numeric Feature Histogram Matrix", fontsize = 18, fontweight = "bold", y = 0.95)
-plt.show()
-```
-
-
-    
 ![png](churn-predict_files/churn-predict_21_0.png)
     
-
 
 ### Distributions of Categorical Features
 
 #### Plotting Countplot Grid
 
-To simplify the following visualizations, we make a list of numeric and categorical features.
+To visualize the distribution of each categorical feature, we plot a countplot grid
 
-
-```python
-# List of numeric features column names
-numeric_features = train_df.select_dtypes(include=['float64', 'int64']).columns.tolist()
-numeric_features.remove('Churn')
-
-# List of categorical features column names
-categorical_features = train_df.select_dtypes(include=['object']).columns.tolist()
-categorical_features.remove('CustomerID') 
-```
-
-Now, we create a function to make the countplot grid
-
-
-```python
-# Countplot function
-def make_countplot(features_list):
-    i = 0
-    for n in range(0, 5):
-        m = 0
-        a = sns.countplot(
-            ax=axes[m, n],
-            x=features_list[i],
-            data=train_df,
-            color="blue",
-            order=train_df[features_list[i]].value_counts().index,
-        )
-        a.tick_params(axis="x", labelrotation=45)
-        m += 1
-        
-        a = sns.countplot(
-            ax=axes[m, n],
-            x=features_list[i+1],
-            data=train_df,
-            color="blue",
-            order=train_df[features_list[i+1]].value_counts().index,
-        )
-        a.tick_params(axis="x", labelrotation=45)
-        i += 2
-
-# Figure dimensions
-fig, axes = plt.subplots(2, 5, figsize=(18, 8))
-
-# Plot categorical countplot matrix
-make_countplot(categorical_features)
-
-# Adjust layout for subplot spacing
-plt.tight_layout(w_pad=4, h_pad=1)
-plt.suptitle("Categorical Feature Countplot Matrix", fontsize = 18, fontweight = "bold", y = 1.05);
-```
-
-
-    
 ![png](churn-predict_files/churn-predict_26_0.png)
     
 
-
 ### Bivariate Visualization of Categorical Variables
-To visualize the relationship between each categorical variable and churn distribution, we plot grouped bar plots depicting both the counts, and percentage of churn in each class of each categorical variable. We do the same separately below for two-class (binary) categorical variables. 
+To visualize the relationship between each categorical variable and churn distribution, we plot grouped bar plots depicting both the counts, and percentage of churn in each class of each categorical variable. 
 
-We define a function to facilitate plotting the aforementioned grouped bar plots:
-
-
-```python
-# Creating grouped bar plot function
-def grouped_plot(group_col):
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3))
-    labels = ["Y", "N"]
-    grouped = train_df.groupby(group_col)["Churn"].agg(Count="value_counts")
-    # Calculate count
-    count = grouped.pivot_table(values="Count", index=group_col, columns=["Churn"])
-    count.plot(kind="bar", color=["#2e9624", "#eb2d46"], rot=0, ax=ax1)
-    # Create count plot
-    ax1.set_title("Churn Risk (Count)", fontsize=13, pad=10)
-    ax1.set_ylabel("Count", size=10)
-    ax1.legend(labels=labels, loc="upper right", title="Renew")
-    # Calculate percentage
-    perc = grouped.groupby(level=[0]).apply(lambda g: round(g * 100 / g.sum(), 2))
-    perc.rename(columns={"Count": "Percentage"}, inplace=True)
-    perc = perc.pivot_table(values="Percentage", index=group_col, columns=["Churn"])
-    # Create percentage plot
-    perc.plot(kind="bar", color=["#2e9624", "#eb2d46"], rot=0, ax=ax2)
-    ax2.set_title("Churn Risk (Percentage)", fontsize=13, pad=10)
-    ax2.set_ylabel("Percentage", size=10)
-    ax2.legend(labels=labels, loc="upper right", title="Renew")
-
-    # Add data labels
-    for ax in (ax1, ax2):
-        for i in range(0, 2):
-            ax.bar_label(ax.containers[i], label_type="edge", fontsize=9)
-    plt.suptitle("Churn Distribution by " + str(group_col), fontsize=16, fontweight = "bold")
-    plt.tight_layout(rect=[0, 0, 1, 1])
-```
-
-#### Visualizing Categorical Feature Churn Distribution
-
-
-```python
-for i in range(0, 10):
-    grouped_plot(categorical_features[i])
-```
-
-
-    
 ![png](churn-predict_files/churn-predict_30_0.png)
-    
-
-
 
     
-![png](churn-predict_files/churn-predict_30_1.png)
-    
-
-
-
-    
-![png](churn-predict_files/churn-predict_30_2.png)
-    
-
-
-
-    
-![png](churn-predict_files/churn-predict_30_3.png)
-    
-
-
-
-    
-![png](churn-predict_files/churn-predict_30_4.png)
-    
-
-
-
-    
-![png](churn-predict_files/churn-predict_30_5.png)
-    
-
-
-
-    
-![png](churn-predict_files/churn-predict_30_6.png)
-    
-
-
-
-    
-![png](churn-predict_files/churn-predict_30_7.png)
-    
-
-
-
-    
-![png](churn-predict_files/churn-predict_30_8.png)
-    
-
-
-
-    
-![png](churn-predict_files/churn-predict_30_9.png)
-    
-
-
 ### Multivariate Visualization of Numeric Variables
 #### Correlations
 To visualize the interactions between numeric variables (i.e., their correlations), we perform correlation analysis and plot a correlation matrix of the 9 numeric features. 
 
-
-```python
-# Perform correlation analysis for numerical features
-correlation_matrix = train_df[numeric_features].corr()
-
-# Plot the correlation matrix
-plt.figure(figsize=(8, 6))
-sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm')
-plt.title('Numerical Feature Correlation Matrix', fontweight = "bold", fontsize = 18, y = 1.05, x = 0.4)
-plt.show()
-```
-
-
-    
 ![png](churn-predict_files/churn-predict_32_0.png)
     
-
 
 ## Feature Importance
 
 Using `RandomForestClassifier()` and `.feature_importances_`, we determine the importance of each of our features to help us decide which we should include in our model.
 
-
-```python
-# Use RandomForestClassifier to find feature importance for numerical and categorical features
-rfc = RandomForestClassifier()
-
-# Encode categorical features
-encoded_cat = pd.get_dummies(train_df, columns=categorical_features, drop_first=True).drop(['Churn', 'CustomerID'], axis=1)
-labels = train_df['Churn']
-
-# Fit the model
-rfc.fit(encoded_cat, labels)
-
-# Get feature importances
-importances = rfc.feature_importances_
-
-# Creating a DataFrame for feature importances
-feature_importance_df = pd.DataFrame({'Feature': encoded_cat.columns, 'Importance': importances})
-
-# Displaying feature importances
-feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
-feature_importance_df.head(10)  # Displaying top 10 features
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1274,102 +598,8 @@ feature_importance_df.head(10)  # Displaying top 10 features
 </table>
 </div>
 
-
-
-## Data Preprocessing
-Before building our models, we must convert our features to appropriate formats. We begin by filtering our top features as determined by feature importance above.
-
-
-```python
-# Filter top features
-top_features = feature_importance_df.head(10)['Feature'].tolist()
-filtered_numeric_columns = [col for col in numeric_features if col in top_features]
-filtered_categorical_columns = [col for col in categorical_features if col in top_features]
-```
-
-Then, we create transformers for categorical and numeric data, and combine them using `ColumnTransformer()` to create our preprocessor. 
-
-
-```python
-# Create transformers for preprocessing
-categorical_transformer = OneHotEncoder(handle_unknown="ignore")
-numeric_transformer = StandardScaler()
-
-# Create a column transformer
-preprocessor = ColumnTransformer(
-    transformers=[
-        ('cat', categorical_transformer, filtered_categorical_columns),
-        ('num', numeric_transformer, filtered_numeric_columns)
-    ]
-)
-```
-
-## Model Building
-Next, we define Logistic Regression, K-Nearest Neighbours, and Random Forest pipelines to transform the features using our pre-defined preprocessor. 
-
-### Logistic Regression
-
-
-```python
-# Create a logistic regression pipeline with preprocessing
-lr_model = Pipeline(steps=[('preprocessor', preprocessor),
-                        ('classifier', LogisticRegression())])
-```
-
-### K Nearest Neigbours
-
-
-```python
-# Create a KNN classifier pipeline with preprocessing
-knn_model = Pipeline(steps=[('preprocessor', preprocessor),
-                        ('classifier', KNeighborsClassifier())])
-```
-
-### Random Forest Classifier
-
-
-```python
-random_forest_model = Pipeline(
-    steps=[("preprocessor", preprocessor), ("classifier", RandomForestClassifier())]
-)
-```
-
----
-## Cross Validation
-
-### Preparing Feature, Target Data
-
-Before we perform cross validation to score our models, we must create separate data frames for the features and target. We also filter the training and test data by our selected features. 
-
-
-```python
-# Selected features
-selected_features = [feature for feature in top_features if feature in train_df.columns]
-
-# Splitting training features, target; filtering by selected features
-X_train = train_df[selected_features]
-y_train = train_df['Churn']
-
-# Filtering test data frame by selected features
-X_test = test_df[selected_features]
-```
-
-
-```python
-# Cross-validation
-lr_scores = cross_val_score(lr_model, X_train, y_train, cv=5, scoring='roc_auc')
-knn_scores = cross_val_score(knn_model, X_train, y_train, cv=5, scoring='roc_auc')
-rfc_scores = cross_val_score(random_forest_model, X_train, y_train, cv=5, scoring='roc_auc')
-
-# Calculate the average performance across the folds
-lr_performance = lr_scores.mean()
-knn_performance = knn_scores.mean()
-rfc_performance = rfc_scores.mean()
-
-print("Logistic Regression ROC-AUC:", lr_performance)
-print("KNN ROC-AUC:", knn_performance)
-print("Random Forest ROC-AUC:", rfc_performance)
-```
+## Model Building & Cross Validation
+For this predictive analysis task, we define Logistic Regression, K-Nearest Neighbours, and Random Forest pipelines to transform the features using our pre-defined preprocessor. Each model's performance is evaluated by performing 5-fold cross validation; the resulting ROC-AUC scores are shown below.
 
     Logistic Regression ROC-AUC: 0.7465650106544565
     KNN ROC-AUC: 0.6436138327547012
@@ -1378,52 +608,10 @@ print("Random Forest ROC-AUC:", rfc_performance)
 
 The top performing model based on ROC-AUC score is Logistic Regression, followed by Random Forest, then K-Nearest Neighbours. Based on these metrics, we opt to use the logistic regression model for our predictive analysis. 
 
-
----
 ## Predictions
 
-We now fit our logistic regression model to our training data, then use `.predict_proba()` to predict the churn probability for each `CustomerID`. The predicted values are stored in the newly created `prediction_df` data frame. Lastly, we print the first 10 rows of the data frame to get a quick look at our predicted probabilities.
+We fit our logistic regression model to our training data, then predict the churn probability for each `CustomerID`. The first 10 rows of our predicted values data frame are shown below.
 
-
-```python
-# Fitting the model
-lr_model.fit(X_train, y_train)
-
-# Making predictions on the test set
-predicted_probabilities = lr_model.predict_proba(X_test)[:, 1]
-predicted_probabilities
-
-# Creating predicted values dataframe
-prediction_df = pd.DataFrame({
-    'CustomerID': test_df['CustomerID'],
-    'predicted_probability': predicted_probabilities
-})
-
-# Return first 10 rows of predicted values
-print("Predicted probability of churn by CustomerID:")
-prediction_df.head(10)
-```
-
-    Predicted probability of churn by CustomerID:
-    
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1486,7 +674,6 @@ prediction_df.head(10)
   </tbody>
 </table>
 </div>
-
 
 
 ## Discussion
