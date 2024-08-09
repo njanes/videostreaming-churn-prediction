@@ -1,8 +1,6 @@
 ##### Thursday the 25th of July, 2024
 # Predicting Churn Risk in Customers of a Video Streaming Service*
 
-###### *This project is based on [Coursera's data science churn prediction challenge](https://www.coursera.org/projects/data-science-challenge)
-
 ## Introduction
 ### Background
 
