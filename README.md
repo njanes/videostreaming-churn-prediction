@@ -1,5 +1,5 @@
 ##### Thursday the 25th of July, 2024
-# Predicting Churn Risk in Customers of a Video Streaming Service*
+# Predicting Churn Risk in Customers of a Video Streaming Service
 
 ## Introduction
 ### Background
